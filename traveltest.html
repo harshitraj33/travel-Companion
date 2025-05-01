@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travel Companion Chatbot</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(to bottom, #007BFF, #0056b3);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Chat Container */
+    .chat-container {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin: 1rem auto;
+      max-width: 800px;
+      width: 90%;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 1rem;
+      line-height: 1.4;
+      font-size: 1rem;
+      word-wrap: break-word;
+    }
+
+    .user {
+      align-self: flex-end;
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background-color: #e0e7ff;
+      color: #1e3a8a;
+      border: 1px solid #3b82f6;
+    }
+
+    /* Input Container */
+    .input-container {
+      display: flex;
+      padding: 1rem;
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #3b82f6;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    /* Header Section */
+    header {
+      text-align: center;
+      padding: 1rem;
+      background: #ffffff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: #1e3a8a;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1rem;
+      color: #6b7280;
+    }
+
+    /* Footer Section */
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #ffffff;
+      border-top: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    footer a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>Travel Companion Chatbot</h1>
+    <p>Your personal assistant for travel planning</p>
+  </header>
+
+  <!-- Chat Container -->
+  <div class="chat-container" id="chat"></div>
+
+  <!-- Input Container -->
+  <div class="input-container">
+    <input type="text" id="userInput" placeholder="Type a message..." />
+    <button onclick="handleUserInput()">Send</button>
+    <button onclick="resetChat()">Reset</button> <!-- Added Reset Button -->
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Travel Companion. Built with ❤️ by <a href="#">Ashhar and Vipul</a>.</p>
+  </footer>
+
+  <script>
+    const chat = document.getElementById("chat");
+    let destination = null;
+    let greeted = false;
+
+    function addMessage(text, sender = "bot") {
+      const bubble = document.createElement("div");
+      bubble.className = `chat-bubble ${sender}`;
+      bubble.textContent = text;
+      chat.appendChild(bubble);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function handleUserInput() {
+      const input = document.getElementById("userInput");
+      const userText = input.value.trim();
+      if (!userText) return;
+      addMessage(userText, "user");
+      input.value = "";
+
+      if (!greeted) {
+        greeted = true;
+        setTimeout(() => addMessage("Hi! I'm your travel companion chatbot."), 500);
+        setTimeout(() => addMessage("Where would you like to go?"), 1000);
+        return;
+      }
+
+      if (!destination) {
+        destination = userText;
+        fetchDetails(destination);
+        return;
+      }
+    }
+
+    async function fetchDetails(city) {
+      addMessage(`Fetching travel details for ${city}...`);
+      await fetchWeather(city);
+      await fetchExchangeRate();
+      await fetchHolidays(city);
+      await fetchFlightInfo(city);
+    }
+
+    async function fetchWeather(city) {
+      try {
+        const res = await fetch(`https://wttr.in/${city}?format=3`);
+        const data = await res.text();
+        addMessage(`🌤️ Weather in ${city}: ${data}`);
+      } catch (e) {
+        addMessage("Could not fetch weather.");
+      }
+    }
+
+    async function fetchExchangeRate() {
+      try {
+        const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+        const data = await res.json();
+        const inr = data.rates.INR;
+        addMessage(`💱 1 USD = ₹${inr.toFixed(2)} INR`);
+      } catch (e) {
+        addMessage("Could not fetch exchange rate.");
+      }
+    }
+
+    async function fetchHolidays(city) {
+      try {
+        const countryMap = {
+          "paris": "FR",
+          "tokyo": "JP",
+          "new york": "US",
+          "london": "GB",
+          "berlin": "DE",
+          "rome": "IT",
+          "sydney": "AU",
+          "madrid": "ES",
+          "dubai": "AE",
+          "singapore": "SG",
+          "delhi": "IN",
+          "mumbai": "IN",
+          "bangalore": "IN",
+          "hyderabad": "IN",
+          "chennai": "IN",
+          "kolkata": "IN",
+          "pune": "IN",
+          "jaipur": "IN",
+          "ahmedabad": "IN",
+          "kochi": "IN",
+          "lucknow": "IN",
+          "bhopal": "IN",
+          "patna": "IN",
+          "guwahati": "IN",
+          "visakhapatnam": "IN",
+          "surat": "IN",
+          "jalandhar": "IN", // Added Jalandhar
+          "amritsar": "IN"   // Added Amritsar
+        };
+        const country = countryMap[city.toLowerCase()];
+        if (!country) {
+          addMessage("Holiday info not available for this city.");
+          return;
+        }
+        const res = await fetch(`https://date.nager.at/api/v3/NextPublicHolidays/${country}`);
+        const holidays = await res.json();
+        const holiday = holidays[0];
+        addMessage(`📅 Next public holiday in ${city}: ${holiday.name} on ${holiday.date}`);
+      } catch (e) {
+        addMessage("Could not fetch holiday info.");
+      }
+    }
+
+    async function fetchFlightInfo(city) {
+      const cityToCode = {
+        "paris": "CDG",
+        "tokyo": "NRT",
+        "new york": "JFK",
+        "london": "LHR",
+        "berlin": "BER",
+        "rome": "FCO",
+        "sydney": "SYD",
+        "madrid": "MAD",
+        "dubai": "DXB",
+        "singapore": "SIN",
+        "bangalore": "BLR",
+        "hyderabad": "HYD",
+        "chennai": "MAA",
+        "kolkata": "CCU",
+        "pune": "PNQ",
+        "jaipur": "JAI",
+        "ahmedabad": "AMD",
+        "kochi": "COK",
+        "lucknow": "LKO",
+        "bhopal": "BHO",
+        "patna": "PAT",
+        "guwahati": "GAU",
+        "visakhapatnam": "VTZ",
+        "surat": "STV",
+        "jalandhar": "IXJ", 
+        "amritsar": "ATQ", 
+      };
+
+      const destinationCode = cityToCode[city.toLowerCase()];
+      if (!destinationCode) {
+        addMessage("✈️ Flight info not available for this city.");
+        return;
+      }
+
+      // Exclude flight details for Delhi and Mumbai
+      if (city.toLowerCase() === "delhi" || city.toLowerCase() === "mumbai") {
+        addMessage(`✈️ Flight details are not available for ${city}.`);
+        return;
+      }
+
+      const date = new Date();
+      const travelDate = new Date(date.getTime() + 3 * 24 * 60 * 60 * 1000);
+      const dateStr = travelDate.toISOString().split("T")[0];
+
+      addMessage(`✈️ Sample flights on ${dateStr} from Mumbai (BOM) and Delhi (DEL) to ${destinationCode}:
+- Mumbai to ${destinationCode} at 10:00 AM
+- Delhi to ${destinationCode} at 11:00 AM`);
+    }
+
+    function resetChat() {
+      chat.innerHTML = ""; // Clear the chat container
+      destination = null; // Reset destination
+      greeted = false; // Reset greeted flag
+      window.onload(); // Trigger the auto-greet function
+    }
+
+    // Auto greet
+    window.onload = () => {
+      setTimeout(() => addMessage("Hello! I'm your travel companion."), 300);
+      setTimeout(() => addMessage("Where would you like to go?"), 1000);
+      greeted = true;
+    };
+  </script>
+</body>
+</html>

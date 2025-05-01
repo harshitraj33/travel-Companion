@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Companion</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background-color: #d4d7dd;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: url("C:/Users/harsh/Downloads/bg3.jpg") no-repeat center center/cover;
+      color: white;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+    }
+
+    .hero h1, .hero p {
+      color: black;
+    }
+
+    .hero button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #ffcc00;
+      color: #333;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .hero button:hover {
+      background-color: #e6b800;
+    }
+
+    .currency-selector {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .currency-selector select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #007BFF;
+    }
+
+    .destination-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .destination-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .destination-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .destination-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .destination-card-content {
+      padding: 1.5rem;
+    }
+
+    .destination-card-content h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .destination-card-content p {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: #666;
+    }
+
+    .destination-card-content button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .destination-card-content button:hover {
+      background-color: #0056b3;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-content img {
+      border-radius: 10px;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #333;
+    }
+
+    footer {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+
+    footer p {
+      font-size: 0.9rem;
+    }
+
+    .flight-form {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .flight-form input, .flight-form button {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .flight-form button {
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .flight-form button:hover {
+      background-color: #0056b3;
+    }
+
+    #flight-results {
+      text-align: center;
+    }
+
+    .chatbot-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #007BFF;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .chatbot-button:hover {
+      background-color: #0056b3;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>Travel Companion</h1>
+  <p>Discover your next adventure with ease!</p>
+  <button onclick="scrollToDestinations()">Explore Destinations</button>
+
+  <div class="currency-selector">
+    <select id="currency-select">
+      <option value="USD" selected>USD ($)</option>
+      <option value="EUR">EUR (€)</option>
+      <option value="INR">INR (₹)</option>
+      <option value="JPY">JPY (¥)</option>
+    </select>
+  </div>
+</header>
+
+<main>
+  <h2 class="section-title">Suggested Destinations</h2>
+  <div class="destination-grid" id="destination-list">
+    <!-- Cards are generated by JS -->
+  </div>
+</main>
+
+<div id="destination-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close-button" onclick="closeModal()">&times;</span>
+    <h3 id="modal-title"></h3>
+    <p id="modal-description"></p>
+    <img id="modal-image" src="" alt="" style="width: 100%; height: auto; margin-top: 1rem;">
+    <div id="costs-info" style="margin-top: 1rem;"></div>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2025 Travel Companion. All rights reserved.</p>
+</footer>
+
+<a href="traveltest.html" class="chatbot-button">Chat with Bot</a>
+
+<script>
+const WEATHERSTACK_API_KEY = '907d13b1fcc9d2c82150e8de9cb247fc';
+const EXCHANGE_RATE_API_KEY = '2b4b5d39f6ef04a7cf3353f9';
+const EXCHANGE_RATE_BASE_URL = `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/USD`;
+const CALENDARIFIC_API_KEY = 'xemssCXGm5LIli9deGsUQ8ydL64Y7Kfc'; // Replace with your actual API key
+const AVIATIONSTACK_API_KEY = 'fb6b1206077de83366eff51319f68392'; // Replace with your actual API key
+
+const destinations = [
+  {
+    name: "Paris, France",
+    description: "The city of lights and love.",
+    image: "C:/Users/harsh/Downloads/pr.jpg",
+    costs: { food: 20, hotel: 150, transport: 10 },
+    countryCode: "FR" // France
+  },
+  {
+    name: "Tokyo, Japan",
+    description: "A bustling metropolis blending tradition and modernity.",
+    image: "C:/Users/harsh/Downloads/tk.jpg",
+    costs: { food: 15, hotel: 120, transport: 8 },
+    countryCode: "JP" // Japan
+  },
+  {
+    name: "New York City, USA",
+    description: "The city that never sleeps.",
+    image: "C:/Users/harsh/Downloads/ny.jpg",
+    costs: { food: 25, hotel: 200, transport: 12 },
+    countryCode: "US" // United States
+  },
+  {
+    name: "Cape Town, South Africa",
+    description: "A city of beaches, mountains, and vineyards.",
+    image: "C:/Users/harsh/Downloads/ct.jpg",
+    costs: { food: 10, hotel: 100, transport: 5 },
+    countryCode: "ZA" // South Africa
+  },
+  {
+    name: "Rome, Italy",
+    description: "A historic city filled with ancient architecture and delicious food.",
+    image: "C:/Users/harsh/Downloads/rm.jpg",
+    costs: { food: 18, hotel: 130, transport: 7 },
+    countryCode: "IT" // Italy
+  },
+  {
+    name: "Sydney, Australia",
+    description: "Famous for its opera house, harbour, and beautiful beaches.",
+    image: "C:/Users/harsh/Downloads/sy.png",
+    costs: { food: 22, hotel: 140, transport: 9 },
+    countryCode: "AU" // Australia
+  }
+];
+
+function renderDestinations() {
+  const destinationList = document.getElementById("destination-list");
+  destinationList.innerHTML = "";
+
+  destinations.forEach(destination => {
+    const card = document.createElement("div");
+    card.className = "destination-card";
+    card.innerHTML = `
+      <img src="${destination.image}" alt="${destination.name}">
+      <div class="destination-card-content">
+        <h3>${destination.name}</h3>
+        <p>${destination.description}</p>
+        <button onclick="showModal('${destination.name}', '${destination.description}', '${destination.image}')">Learn More</button>
+      </div>
+    `;
+    destinationList.appendChild(card);
+  });
+}
+
+async function fetchExchangeRates() {
+  try {
+    const response = await fetch(EXCHANGE_RATE_BASE_URL);
+    const data = await response.json();
+    if (data.result === "success") {
+      return data.conversion_rates;
+    } else {
+      console.error("Error fetching exchange rates:", data["error-type"]);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching exchange rates:", error);
+    return null;
+  }
+}
+
+async function fetchWeather(location) {
+  try {
+    const response = await fetch(
+      `https://api.weatherstack.com/current?access_key=${WEATHERSTACK_API_KEY}&query=${encodeURIComponent(location)}`
+    );
+    const data = await response.json();
+    if (data.success === false) {
+      console.error(`Error fetching weather for ${location}:`, data.error.info);
+      return null;
+    }
+    return data.current;
+  } catch (error) {
+    console.error(`Error fetching weather for ${location}:`, error);
+    return null;
+  }
+}
+
+async function fetchHolidays(countryCode, year) {
+  try {
+    const response = await fetch(
+      `https://calendarific.com/api/v2/holidays?api_key=${CALENDARIFIC_API_KEY}&country=${countryCode}&year=${year}`
+    );
+    const data = await response.json();
+    if (data.meta.code === 200) {
+      return data.response.holidays;
+    } else {
+      console.error("Error fetching holidays:", data.meta.error_detail);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching holidays:", error);
+    return null;
+  }
+}
+
+async function fetchFlights(from, to, date) {
+  try {
+    const response = await fetch(
+      `http://api.aviationstack.com/v1/flights?access_key=${AVIATIONSTACK_API_KEY}&dep_iata=${from}&arr_iata=${to}&flight_date=${date}`
+    );
+    const data = await response.json();
+    console.log("API Response:", data); // Debugging log
+
+    if (data.data && data.data.length > 0) {
+      return data.data.slice(0, 5); // Limit to 5 flights
+    } else {
+      console.error("No flight data available for this query.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching flight details:", error);
+    return null;
+  }
+}
+
+async function searchFlights() {
+  const from = document.getElementById("from-input").value.trim().toUpperCase();
+  const to = document.getElementById("to-input").value.trim().toUpperCase();
+  const date = document.getElementById("date-input").value;
+
+  const flightResults = document.getElementById("flight-results");
+  flightResults.innerHTML = "<p>Loading flight details...</p>";
+
+  if (!from || !to || !date) {
+    flightResults.innerHTML = "<p>Please fill in all fields.</p>";
+    return;
+  }
+
+  try {
+    const flights = await fetchFlights(from, to, date);
+    if (!flights || flights.length === 0) {
+      flightResults.innerHTML = "<p>No flights found for the selected route and date. Please try a different query.</p>";
+      return;
+    }
+    if (flights && flights.length > 0) {
+      flightResults.innerHTML = "<h4>Available Flights:</h4>";
+      flights.forEach((flight) => {
+        flightResults.innerHTML += `
+          <div style="margin-bottom: 1rem; border: 1px solid #ddd; padding: 1rem; border-radius: 5px;">
+            <p><strong>Flight:</strong> ${flight.flight.iata || "N/A"} - ${flight.airline.name || "N/A"}</p>
+            <p><strong>Departure:</strong> ${flight.departure.iata || "N/A"} (${flight.departure.scheduled || "N/A"})</p>
+            <p><strong>Arrival:</strong> ${flight.arrival.iata || "N/A"} (${flight.arrival.scheduled || "N/A"})</p>
+            <p><strong>Status:</strong> ${flight.flight_status || "N/A"}</p>
+          </div>
+        `;
+      });
+    } else {
+      flightResults.innerHTML = "<p>No flight details available for this query.</p>";
+    }
+  } catch (error) {
+    flightResults.innerHTML = "<p>Error fetching flight details. Please try again later.</p>";
+    console.error(error);
+  }
+}
+
+async function showModal(name, description, image) {
+  const modal = document.getElementById("destination-modal");
+  document.getElementById("modal-title").textContent = name;
+  document.getElementById("modal-description").textContent = description;
+  document.getElementById("modal-image").src = image;
+
+  const destination = destinations.find((d) => d.name === name);
+  const selectedCurrency = document.getElementById("currency-select").value;
+
+  // Fetch exchange rates
+  const rates = await fetchExchangeRates();
+  if (!rates) {
+    alert("Error fetching exchange rates. Please try again later.");
+    return;
+  }
+
+  // Convert costs
+  const foodCost = (destination.costs.food * rates[selectedCurrency]).toFixed(2);
+  const hotelCost = (destination.costs.hotel * rates[selectedCurrency]).toFixed(2);
+  const transportCost = (destination.costs.transport * rates[selectedCurrency]).toFixed(2);
+
+  // Update costs in modal
+  const costsInfo = document.getElementById("costs-info");
+  costsInfo.innerHTML = `
+    <p><strong>Food Cost:</strong> ${selectedCurrency} ${foodCost}</p>
+    <p><strong>Hotel Cost:</strong> ${selectedCurrency} ${hotelCost} per night</p>
+    <p><strong>Transport Cost:</strong> ${selectedCurrency} ${transportCost}</p>
+  `;
+
+  // Fetch weather data
+  const weatherInfo = document.createElement("div");
+  weatherInfo.id = "weather-info";
+  weatherInfo.innerHTML = "<p>Loading weather information...</p>";
+  costsInfo.appendChild(weatherInfo);
+
+  try {
+    const weatherData = await fetchWeather(name);
+    if (weatherData) {
+      weatherInfo.innerHTML = `
+        <p><strong>Weather:</strong> ${weatherData.weather_descriptions[0]}</p>
+        <p><strong>Temperature:</strong> ${weatherData.temperature}°C</p>
+        <p><strong>Feels Like:</strong> ${weatherData.feelslike}°C</p>
+        <p><strong>Humidity:</strong> ${weatherData.humidity}%</p>
+      `;
+    } else {
+      weatherInfo.innerHTML = "<p>Weather information not available.</p>";
+    }
+  } catch (error) {
+    weatherInfo.innerHTML = "<p>Error fetching weather information.</p>";
+    console.error(error);
+  }
+
+  // Fetch public holidays
+  const holidaysInfo = document.createElement("div");
+  holidaysInfo.id = "holidays-info";
+  holidaysInfo.innerHTML = "<p>Loading public holidays...</p>";
+  costsInfo.appendChild(holidaysInfo);
+
+  try {
+    const countryCode = destination.countryCode; // Add `countryCode` to your destinations array
+    const year = new Date().getFullYear();
+    const holidays = await fetchHolidays(countryCode, year);
+
+    if (holidays && holidays.length > 0) {
+      // Filter and sort holidays to show only the next 2-3 upcoming holidays
+      const upcomingHolidays = holidays
+        .filter((holiday) => new Date(holiday.date.iso) >= new Date()) // Only future holidays
+        .sort((a, b) => new Date(a.date.iso) - new Date(b.date.iso)) // Sort by date
+        .slice(0, 3); // Limit to 2-3 holidays
+
+      if (upcomingHolidays.length > 0) {
+        holidaysInfo.innerHTML = "<h4>Upcoming Public Holidays:</h4>";
+        upcomingHolidays.forEach((holiday) => {
+          holidaysInfo.innerHTML += `<p>${holiday.date.iso}: ${holiday.name}</p>`;
+        });
+      } else {
+        holidaysInfo.innerHTML = "<p>No upcoming public holidays found.</p>";
+      }
+    } else {
+      holidaysInfo.innerHTML = "<p>No public holidays found.</p>";
+    }
+  } catch (error) {
+    holidaysInfo.innerHTML = "<p>Error fetching public holidays.</p>";
+    console.error(error);
+  }
+
+  modal.style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("destination-modal").style.display = "none";
+}
+
+function scrollToDestinations() {
+  document.querySelector("main").scrollIntoView({ behavior: "smooth" });
+}
+
+document.getElementById("currency-select").addEventListener("change", () => {
+  const modal = document.getElementById("destination-modal");
+  if (modal.style.display === "flex") {
+    const name = document.getElementById("modal-title").textContent;
+    const description = document.getElementById("modal-description").textContent;
+    const image = document.getElementById("modal-image").src;
+    showModal(name, description, image);
+  }
+});
+
+renderDestinations();
+</script>
+
+</body>
+</html>
